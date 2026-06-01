@@ -30,7 +30,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Parser
 def parse_tournament(filepath):
-    
+
     """
     Parses lines like:
     '  Random vs UCT (200 games) : Random=0.5% | UCT=99.5%'
@@ -38,9 +38,9 @@ def parse_tournament(filepath):
       - agents: list of agent names in order
       - winrates: dict {agent: aggregate win rate %}
       - matrix: DataFrame of head-to-head win rates
-    
+
     """
-    
+
     with open(filepath, "r") as f:
         content = f.read()
 

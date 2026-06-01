@@ -52,7 +52,7 @@ involuntarily access hidden information (cheating).
 TOURNAMENT 1 RANKING
 ========================================
   Random               : 3/600 (0.5%)
-  UCT                  : 263/600 (43.8%)
-  MAST                 : 479/600 (79.8%)
-  FlatMC               : 155/600 (25.8%)
+  UCT                  : 351/600 (58.5%)
+  MAST                 : 599/600 (99.8%)
+  FlatMC               : 247/600 (41.2%)
 ========================================
