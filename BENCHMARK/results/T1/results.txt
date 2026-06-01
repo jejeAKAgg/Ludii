@@ -1,0 +1,58 @@
+========================================
+BATTLESHIP BENCHMARK - TFE26-093 - by LECHAT Jérôme
+Game: Battleships.lud
+--------------------
+Games per direction: 100
+Think time: 0.1s
+========================================
+
+========================================
+TOURNAMENT 1 - Native agents (no determinization)
+Expected: all agents crush Random because they
+involuntarily access hidden information (cheating).
+========================================
+
+  > Random vs UCT - 100 games
+    Random:0 | UCT:100 | Draws:0
+  > UCT vs Random - 100 games
+    UCT:99 | Random:1 | Draws:0
+  Random vs UCT (200 games) : Random=0.5% | UCT=99.5%
+
+  > Random vs MAST - 100 games
+    Random:0 | MAST:100 | Draws:0
+  > MAST vs Random - 100 games
+    MAST:100 | Random:0 | Draws:0
+  Random vs MAST (200 games) : Random=0.0% | MAST=100.0%
+
+  > Random vs FlatMC - 100 games
+    Random:2 | FlatMC:98 | Draws:0
+  > FlatMC vs Random - 100 games
+    FlatMC:100 | Random:0 | Draws:0
+  Random vs FlatMC (200 games) : Random=1.0% | FlatMC=99.0%
+
+  > UCT vs MAST - 100 games
+    UCT:0 | MAST:100 | Draws:0
+  > MAST vs UCT - 100 games
+    MAST:99 | UCT:1 | Draws:0
+  UCT vs MAST (200 games) : UCT=0.5% | MAST=99.5%
+
+  > UCT vs FlatMC - 100 games
+    UCT:71 | FlatMC:29 | Draws:0
+  > FlatMC vs UCT - 100 games
+    FlatMC:20 | UCT:80 | Draws:0
+  UCT vs FlatMC (200 games) : UCT=75.5% | FlatMC=24.5%
+
+  > MAST vs FlatMC - 100 games
+    MAST:100 | FlatMC:0 | Draws:0
+  > FlatMC vs MAST - 100 games
+    FlatMC:0 | MAST:100 | Draws:0
+  MAST vs FlatMC (200 games) : MAST=100.0% | FlatMC=0.0%
+
+========================================
+TOURNAMENT 1 RANKING
+========================================
+  Random               : 3/600 (0.5%)
+  UCT                  : 263/600 (43.8%)
+  MAST                 : 479/600 (79.8%)
+  FlatMC               : 155/600 (25.8%)
+========================================

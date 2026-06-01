@@ -1,0 +1,74 @@
+========================================
+TOURNAMENT 2 - Determinized agents (our contribution)
+Expected: win rates comparable to TAG SMART results.
+========================================
+
+  > Random vs UCT+Det - 100 games
+    Random:2 | UCT+Det:98 | Draws:0
+  > UCT+Det vs Random - 100 games
+    UCT+Det:99 | Random:1 | Draws:0
+  Random vs UCT+Det (200 games) : Random=1.5% | UCT+Det=98.5%
+
+  > Random vs MAST+Det - 100 games
+    Random:1 | MAST+Det:99 | Draws:0
+  > MAST+Det vs Random - 100 games
+    MAST+Det:98 | Random:2 | Draws:0
+  Random vs MAST+Det (200 games) : Random=1.5% | MAST+Det=98.5%
+
+  > Random vs FlatMC+Det - 100 games
+    Random:3 | FlatMC+Det:97 | Draws:0
+  > FlatMC+Det vs Random - 100 games
+    FlatMC+Det:97 | Random:3 | Draws:0
+  Random vs FlatMC+Det (200 games) : Random=3.0% | FlatMC+Det=97.0%
+
+  > Random vs OSLA+Det - 100 games
+    Random:2 | OSLA+Det:98 | Draws:0
+  > OSLA+Det vs Random - 100 games
+    OSLA+Det:96 | Random:4 | Draws:0
+  Random vs OSLA+Det (200 games) : Random=3.0% | OSLA+Det=97.0%
+
+  > UCT+Det vs MAST+Det - 100 games
+    UCT+Det:7 | MAST+Det:93 | Draws:0
+  > MAST+Det vs UCT+Det - 100 games
+    MAST+Det:95 | UCT+Det:5 | Draws:0
+  UCT+Det vs MAST+Det (200 games) : UCT+Det=6.0% | MAST+Det=94.0%
+
+  > UCT+Det vs FlatMC+Det - 100 games
+    UCT+Det:63 | FlatMC+Det:37 | Draws:0
+  > FlatMC+Det vs UCT+Det - 100 games
+    FlatMC+Det:14 | UCT+Det:86 | Draws:0
+  UCT+Det vs FlatMC+Det (200 games) : UCT+Det=74.5% | FlatMC+Det=25.5%
+
+  > UCT+Det vs OSLA+Det - 100 games
+    UCT+Det:5 | OSLA+Det:95 | Draws:0
+  > OSLA+Det vs UCT+Det - 100 games
+    OSLA+Det:92 | UCT+Det:8 | Draws:0
+  UCT+Det vs OSLA+Det (200 games) : UCT+Det=6.5% | OSLA+Det=93.5%
+
+  > MAST+Det vs FlatMC+Det - 100 games
+    MAST+Det:90 | FlatMC+Det:10 | Draws:0
+  > FlatMC+Det vs MAST+Det - 100 games
+    FlatMC+Det:13 | MAST+Det:87 | Draws:0
+  MAST+Det vs FlatMC+Det (200 games) : MAST+Det=88.5% | FlatMC+Det=11.5%
+
+  > MAST+Det vs OSLA+Det - 100 games
+    MAST+Det:36 | OSLA+Det:64 | Draws:0
+  > OSLA+Det vs MAST+Det - 100 games
+    OSLA+Det:78 | MAST+Det:22 | Draws:0
+  MAST+Det vs OSLA+Det (200 games) : MAST+Det=29.0% | OSLA+Det=71.0%
+
+  > FlatMC+Det vs OSLA+Det - 100 games
+    FlatMC+Det:6 | OSLA+Det:94 | Draws:0
+  > OSLA+Det vs FlatMC+Det - 100 games
+    OSLA+Det:83 | FlatMC+Det:17 | Draws:0
+  FlatMC+Det vs OSLA+Det (200 games) : FlatMC+Det=11.5% | OSLA+Det=88.5%
+
+========================================
+TOURNAMENT 2 RANKING
+========================================
+  Random               : 18/800 (2.3%)
+  UCT+Det              : 371/800 (46.4%)
+  MAST+Det             : 620/800 (77.5%)
+  FlatMC+Det           : 291/800 (36.4%)
+  OSLA+Det             : 700/800 (87.5%)
+========================================
