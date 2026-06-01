@@ -11,43 +11,43 @@ import other.move.Move;
 
 /**
  * Base abstract class for AI agents.
- * 
+ *
  * @author Dennis Soemers and cambolbro
  */
 @SuppressWarnings("static-method")
 public abstract class AI
 {
 	//-------------------------------------------------------------------------
-	
+
 	/** A heuristic function */
 	protected Heuristics heuristicFunction = null;
-	
+
 	/** Easily-readable, human-friendly name for AI */
 	protected String friendlyName = "Unnamed";
-	
+
 	/** Set to true if the Ludii app would like this AI to interrupt any thinking */
 	protected volatile boolean wantsInterrupt = false;
-	
+
 	/** Weak reference to the last game we've initialised the AI for */
 	private WeakReference<Game> lastInitGame = new WeakReference<>(null);
-	
+
 	/** How often was start() called on the game object the last time we initialised AI for it? */
 	private int lastInitGameStartCount = -1;
-	
+
 	/** Does our AI want to cheat with perfect knowledge of all RNG events? */
 	protected boolean wantsCheatRNG = false;
-	
+
 	/** Functor we can use to create copies of contexts */
 	protected ContextCopyInterface contextCopyer = STANDARD_CONTEXT_COPY;
-	
-	/** 
+
+	/**
 	 * Thinking time limit per move for this AI. Only used if no limit is
 	 * otherwise explicitly defined. By default 1 second, but can be modified.
 	 * Values below 0 mean no limit.
 	 */
 	protected double maxSecondsPerMove = 1.0;
-	
-	/** 
+
+	/**
 	 * Iteration count limit per move for this AI. Only used if no limit is
 	 * otherwise explicitly defined. Values below 0 mean no limit. Default -1
 	 * (= no limit). The meaning of an "iteration" can be different for different
@@ -55,8 +55,8 @@ public abstract class AI
 	 * that they can just ignore this)
 	 */
 	protected int maxIterationsPerMove = -1;
-	
-	/** 
+
+	/**
 	 * Search depth limit per move for this AI. Only used if no limit is
 	 * otherwise explicitly defined. Values below 0 mean no limit. Default -1
 	 * (= no limit). The meaning of "search depth" can be different for different
@@ -64,16 +64,16 @@ public abstract class AI
 	 */
 	protected int maxSearchDepthPerMove = -1;
 
-	/** 
-	 * Leniency factor in range 0..1: 0 = no effect, 1 = 100% leniency. 
-	 * Used to make the AI more lenient (i.e. more likely to play suboptimal 
-	 * moves) to dynamically adjust its playing strength. 
-	 */ 
+	/**
+	 * Leniency factor in range 0..1: 0 = no effect, 1 = 100% leniency.
+	 * Used to make the AI more lenient (i.e. more likely to play suboptimal
+	 * moves) to dynamically adjust its playing strength.
+	 */
 	protected double leniency = 0;
-	
+
 	//-------------------------------------------------------------------------
 	// Getters and setters
-	
+
 	/**
 	 * @return Leniency factor in range 0..1: 0 = no effect, 1 = 100% leniency.
 	 */
@@ -81,7 +81,7 @@ public abstract class AI
 	{
 		return leniency;
 	}
-	
+
 	/**
 	 * @param amount Leniency amount in range 0..1.
 	 */
@@ -89,8 +89,8 @@ public abstract class AI
 	{
 		leniency = amount;
 	}
-	
-	/** 
+
+	/**
 	 * @return Thinking time limit per move for this AI. Only used if no limit is
 	 * otherwise explicitly defined. By default 1 second, but can be modified.
 	 * Values below 0 mean no limit.
@@ -99,7 +99,7 @@ public abstract class AI
 	{
 		return maxSecondsPerMove;
 	}
-	
+
 	/**
 	 * Sets this AI's default time limit per move in seconds (use negative for no limit)
 	 * @param newLimit
@@ -108,8 +108,8 @@ public abstract class AI
 	{
 		maxSecondsPerMove = newLimit;
 	}
-	
-	/** 
+
+	/**
 	 * @return Iteration count limit per move for this AI. Only used if no limit is
 	 * otherwise explicitly defined. Values below 0 mean no limit. Default -1
 	 * (= no limit). The meaning of an "iteration" can be different for different
@@ -120,7 +120,7 @@ public abstract class AI
 	{
 		return maxIterationsPerMove;
 	}
-	
+
 	/**
 	 * Sets this AI's default iteration limit per move in seconds (use negative for no limit)
 	 * @param newLimit
@@ -129,8 +129,8 @@ public abstract class AI
 	{
 		maxIterationsPerMove = newLimit;
 	}
-	
-	/** 
+
+	/**
 	 * @return Search depth limit per move for this AI. Only used if no limit is
 	 * otherwise explicitly defined. Values below 0 mean no limit. Default -1
 	 * (= no limit). The meaning of "search depth" can be different for different
@@ -140,7 +140,7 @@ public abstract class AI
 	{
 		return maxSearchDepthPerMove;
 	}
-	
+
 	/**
 	 * Sets this AI's default search depth limit per move in seconds (use negative for no limit)
 	 * @param newLimit
@@ -149,7 +149,7 @@ public abstract class AI
 	{
 		maxSearchDepthPerMove = newLimit;
 	}
-	
+
 	/**
 	 * @return The friendly name.
 	 */
@@ -157,7 +157,7 @@ public abstract class AI
 	{
 		return friendlyName;
 	}
-	
+
 	/**
 	 * Set the friendly name.
 	 * @param fname The friendly name.
@@ -166,7 +166,7 @@ public abstract class AI
 	{
 		friendlyName = new String(fname);
 	}
-	
+
 	/**
 	 * Sets heuristics to be used by MCTS (for instance to mix with backpropagation result).
 	 * @param heuristics
@@ -175,12 +175,24 @@ public abstract class AI
 	{
 		heuristicFunction = heuristics;
 	}
-	
+
+	/**
+	 * Allows external classes to plug a custom context copy strategy.
+	 *
+	 * By default, Ludii uses a standard copy that exposes hidden information.
+	 * This method allows replacing that copy with a determinised version where the opponent's hidden pieces are replaced by a plausible hypothesis.
+	 *
+	 * @param copyer the context copy to use
+	 */
+	public void setContextCopyer(final ContextCopyInterface copyer) {
+		this.contextCopyer = copyer;
+	}
+
 	//-------------------------------------------------------------------------
 
 	/**
 	 * Should be implemented to select and return an action to play.
-	 * 
+	 *
 	 * @param game Reference to the game we're playing.
 	 * @param context Copy of the context containing the current state of the game
 	 * @param maxSeconds Max number of seconds before a move should be selected.
@@ -193,17 +205,17 @@ public abstract class AI
 	 */
 	public abstract Move selectAction
 	(
-		final Game game, 
-		final Context context, 
+		final Game game,
+		final Context context,
 		final double maxSeconds,
 		final int maxIterations,
 		final int maxDepth
 	);
-	
+
 	/**
 	 * Requests the AI object to select a move, using the AI object's own internal limits for
 	 * search time, iterations, and/or search depth.
-	 * 
+	 *
 	 * @param game
 	 * @param context
 	 * @return Preferred move.
@@ -212,12 +224,12 @@ public abstract class AI
 	{
 		return selectAction(game, context, maxSecondsPerMove, maxIterationsPerMove, maxSearchDepthPerMove);
 	}
-	
+
 	/**
 	 * Helper method to create copies of contexts. Changes behaviour depending
 	 * on whether or not the AI wants to be able to cheat with perfect knowledge
 	 * of RNG events.
-	 * 
+	 *
 	 * @param other
 	 * @return Copy of Context
 	 */
@@ -233,11 +245,11 @@ public abstract class AI
 	{
 		return friendlyName;
 	}
-	
+
 	/**
-	 * Allows an agent to perform any desired initialisation before starting 
+	 * Allows an agent to perform any desired initialisation before starting
 	 * to play a game.
-	 * 
+	 *
 	 * @param game The game that we'll be playing
 	 * @param playerID The player ID (or index) for the AI in this game
 	 */
@@ -245,22 +257,22 @@ public abstract class AI
 	{
 		// Do nothing by default
 	}
-	
+
 	/**
 	 * Ludii may call this when it's fairly likely that this AI will no longer
 	 * have to continue playing the game it was currently playing. This can then
 	 * be used to free up any resources / memory if desired.
-	 * 
+	 *
 	 * Ludii will generally call this on an AI right before switching over to
 	 * a new type of AI, and also when restarting a game in the app or loading
-	 * a new game. Note that it's not 100% guaranteed to always be called in 
+	 * a new game. Note that it's not 100% guaranteed to always be called in
 	 * between subsequent initAI() calls.
 	 */
 	public void closeAI()
 	{
 		// Do nothing by default
 	}
-	
+
 	/**
 	 * Allows an agent to tell Ludii whether or not it can support playing
 	 * any given game. AIs which do not override this method will, by default,
@@ -272,44 +284,44 @@ public abstract class AI
 	{
 		return true;
 	}
-	
+
 	/**
 	 * Can be overridden by AIs to return a general value estimate in [-1, 1].
 	 * Used only for visualisation purposes (e.g. smiley faces)
-	 * 
+	 *
 	 * @return Value estimate in [-1, 1]
 	 */
 	public double estimateValue()
 	{
 		return 0.0;
 	}
-	
+
 	/**
 	 * Can be overridden by AIs to return a string to print in the Analysis tab
-	 * of Ludii after making a move. 
-	 * 
+	 * of Ludii after making a move.
+	 *
 	 * Default implementation always returns null, which causes nothing to be printed.
-	 * 
+	 *
 	 * @return String to print after making move, or null for no print.
 	 */
 	public String generateAnalysisReport()
 	{
 		return null;
 	}
-	
+
 	/**
 	 * Can be overridden by AIs to return data for visualisation of its
 	 * thinking process.
-	 * 
+	 *
 	 * @return Data for visualisations, null for no visualisations
 	 */
 	public AIVisualisationData aiVisualisationData()
 	{
 		return null;
 	}
-	
+
 	//-------------------------------------------------------------------------
-	
+
 	/**
 	 * Sets whether the Ludii app wants this AI to interrupt any thinking
 	 * @param val
@@ -318,7 +330,7 @@ public abstract class AI
 	{
 		wantsInterrupt = val;
 	}
-	
+
 	/**
 	 * Sets whether this AI wants to cheat with perfect knowledge of all RNG events
 	 * @param wantsCheat
@@ -326,13 +338,13 @@ public abstract class AI
 	public void setWantsCheatRNG(final boolean wantsCheat)
 	{
 		wantsCheatRNG = wantsCheat;
-		
+
 		if (wantsCheatRNG)
 			contextCopyer = RNG_CHEAT_COPY;
 		else
 			contextCopyer = STANDARD_CONTEXT_COPY;
 	}
-	
+
 	/**
 	 * @return Does this AI want to cheat with perfect knowledge of all RNG events?
 	 */
@@ -340,7 +352,7 @@ public abstract class AI
 	{
 		return wantsCheatRNG;
 	}
-	
+
 	/**
 	 * @param game
 	 * @return Does this AI use spatial state-action features?
@@ -349,9 +361,9 @@ public abstract class AI
 	{
 		return false;
 	}
-	
+
 	//-------------------------------------------------------------------------
-	
+
 	/**
 	 * Calls initAI() only if it is needed (if the AI wasn't previously initialised
 	 * for the same game + trial).
@@ -360,12 +372,12 @@ public abstract class AI
 	 */
 	public final void initIfNeeded(final Game game, final int playerID)
 	{
-		if 
+		if
 		(
-			lastInitGame.get() != null 
-			&& 
-			lastInitGame.get() == game 
-			&& 
+			lastInitGame.get() != null
+			&&
+			lastInitGame.get() == game
+			&&
 			lastInitGame.get().gameStartCount() == lastInitGameStartCount
 		)
 		{
@@ -377,45 +389,45 @@ public abstract class AI
 		lastInitGame = new WeakReference<>(game);
 		lastInitGameStartCount = game.gameStartCount();
 	}
-	
+
 	//-------------------------------------------------------------------------
-	
+
 	/**
 	 * Wrapper for data that AIs can return if they want to facilitate visualisations
 	 * of their "thinking processes" in the Ludii app.
-	 * 
+	 *
 	 * @author Dennis Soemers
 	 */
 	public static class AIVisualisationData
 	{
-		/** 
+		/**
 		 * Vector containing measures of "search effort" per move.
 		 */
 		private final FVector searchEffort;
-		
+
 		/**
 		 * Vector containing value estimates per move (all expected
 		 * to lie in [-1, 1]).
 		 */
 		private final FVector valueEstimates;
-		
+
 		/**
 		 * List of moves for which we wish to draw visualisations, in
 		 * the order that matches the search effort and value estimate vectors.
 		 */
 		private final FastArrayList<Move> moves;
-		
+
 		/**
 		 * Constructor
-		 * 
+		 *
 		 * @param searchEffort
 		 * @param valueEstimates
 		 * @param moves
 		 */
 		public AIVisualisationData
 		(
-			final FVector searchEffort, 
-			final FVector valueEstimates, 
+			final FVector searchEffort,
+			final FVector valueEstimates,
 			final FastArrayList<Move> moves
 		)
 		{
@@ -423,7 +435,7 @@ public abstract class AI
 			this.valueEstimates = valueEstimates;
 			this.moves = moves;
 		}
-		
+
 		/**
 		 * @return Vector of "search effort" values
 		 */
@@ -431,7 +443,7 @@ public abstract class AI
 		{
 			return searchEffort;
 		}
-		
+
 		/**
 		 * @return Vector of value estimates for moves
 		 */
@@ -439,7 +451,7 @@ public abstract class AI
 		{
 			return valueEstimates;
 		}
-		
+
 		/**
 		 * @return List of moves.
 		 */
@@ -447,11 +459,11 @@ public abstract class AI
 		{
 			return moves;
 		}
-		
+
 	}
-	
+
 	//-------------------------------------------------------------------------
-	
+
 	/**
 	 * Interface for a functor that can create copies of Context objects
 	 *
@@ -465,13 +477,13 @@ public abstract class AI
 		 */
 		public Context copy(final Context context);
 	}
-	
+
 	/** Functor that creates normal copies of context for normal use */
 	public static final ContextCopyInterface STANDARD_CONTEXT_COPY = (final Context context) -> { return new Context(context); };
-	
+
 	/** Functor that creates copies of contexts including seed copying, for RNG cheats */
 	public static final ContextCopyInterface RNG_CHEAT_COPY = (final Context context) -> { return Context.copyWithSeed(context); };
-	
+
 	//-------------------------------------------------------------------------
-	
+
 }
