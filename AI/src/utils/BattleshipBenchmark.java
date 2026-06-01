@@ -192,14 +192,14 @@ public class BattleshipBenchmark
             ai1.initAI(game, 1);
             ai2.initAI(game, 2);
 
-            final Trial   trial   = new Trial(game);
+            final Trial trial = new Trial(game);
             final Context context = new Context(game, trial);
             game.start(context);
 
             while (!trial.over())
             {
-                final int  mover = context.state().mover();
-                final AI   currentAI = (mover == 1) ? ai1 : ai2;
+                final int mover = context.state().mover();
+                final AI currentAI = (mover == 1) ? ai1 : ai2;
                 final Move move = currentAI.selectAction(
                     game, context, THINK_TIME, -1, -1);
                 game.apply(context, move);
