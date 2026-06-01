@@ -24,21 +24,22 @@ import utils.AIFactory.AIConstructor;
  */
 public class AIRegistry
 {
-	
+
 	//-------------------------------------------------------------------------
-	
+
 	/** Our registry */
 	protected static Map<String, AIRegistryEntry> registry = new HashMap<String, AIRegistryEntry>();
-	
+
 	/** Rank to assign to next registered AI (used for sorting when we want a sorted list of AIs) */
 	protected static volatile int nextRank = 0;
-	
+
 	static
 	{
 		// Static block to register our built-in AIs
 		registerAI("Human", -1, (game) -> {return false;}, null);	// We have special handling for human in dropdown menus
 		registerAI("Ludii AI", -1, (game) -> {return true;}, null);
 		registerAI("Random", 1, (game) -> {return new RandomAI().supportsGame(game);}, null);
+		registerAI("Battleship Determinization Agent", 28, (game) -> {return new BattleshipDeterminizationAgent().supportsGame(game);}, () -> new BattleshipDeterminizationAgent());
 		registerAI("Flat MC", 2, (game) -> {return new FlatMonteCarlo().supportsGame(game);}, null);
 		registerAI("UCT", 3, (game) -> {return MCTS.createUCT().supportsGame(game);}, null);
 		registerAI("UCT (Uncapped)", 4, (game) -> {return MCTS.createUCT().supportsGame(game);}, null);
@@ -67,31 +68,31 @@ public class AIRegistry
 		registerAI("UCB1-GRAVE", 27, (game) -> {return AIFactory.createAI("UCB1-GRAVE").supportsGame(game);}, null);
 		registerAI("From JAR", -1, (game) -> {return false;}, null);	// We have special handling for From JAR in dropdown menus
 	}
-	
+
 	//-------------------------------------------------------------------------
-	
+
 	/**
 	 * Registers a new AI. NOTE: this method does not provide a predicate to test
-	 * whether or not any given game is supported, so we assume that ANY game is 
+	 * whether or not any given game is supported, so we assume that ANY game is
 	 * supported!
-	 * 
+	 *
 	 * @param label
 	 * @param aiConstructor Functor to use for constructing AIs
-	 * @return True if we successfully registered an AI, false if an AI with 
+	 * @return True if we successfully registered an AI, false if an AI with
 	 * 	the same label was already registered.
 	 */
 	public static boolean registerAI(final String label, final AIConstructor aiConstructor)
 	{
 		return registerAI(label, -1, (game) -> {return true;}, aiConstructor);
 	}
-	
+
 	/**
 	 * Registers a new AI.
-	 * 
+	 *
 	 * @param label
 	 * @param aiConstructor Functor to use for constructing AIs
 	 * @param supportsGame Predicate to test whether or not any given game is supported.
-	 * @return True if we successfully registered an AI, false if an AI with 
+	 * @return True if we successfully registered an AI, false if an AI with
 	 * 	the same label was already registered.
 	 */
 	public static boolean registerAI
@@ -101,9 +102,9 @@ public class AIRegistry
 	{
 		return registerAI(label, -1, supportsGame, aiConstructor);
 	}
-	
+
 	//-------------------------------------------------------------------------
-	
+
 	/**
 	 * @param game
 	 * @return List of all agent names that are valid for given game
@@ -111,13 +112,13 @@ public class AIRegistry
 	public static List<String> generateValidAgentNames(final Game game)
 	{
 		final List<String> names = new ArrayList<String>();
-		
+
 		for (final Entry<String, AIRegistryEntry> entry : registry.entrySet())
 		{
 			if (entry.getValue().supportsGame(game))
 				names.add(entry.getKey());
 		}
-		
+
 		names.sort
 		(
 			new Comparator<String>()
@@ -131,7 +132,7 @@ public class AIRegistry
 		);
 		return names;
 	}
-	
+
 	/**
 	 * Updates the given JSON object to properly handle registered third-party AIs
 	 * @param json
@@ -140,7 +141,7 @@ public class AIRegistry
 	{
 		if (json == null || json.getJSONObject("AI") == null)
 			return;
-		
+
 		final AIRegistryEntry entry = registry.get(json.getJSONObject("AI").getString("algorithm"));
 		if (entry != null)
 		{
@@ -149,33 +150,33 @@ public class AIRegistry
 				json.put("constructor", constructor);
 		}
 	}
-	
+
 	//-------------------------------------------------------------------------
-	
+
 	/**
 	 * Registers a new AI
 	 * @param label
 	 * @param dbID
 	 * @param supportsGame
 	 * @param aiConstructor
-	 * @return True if we successfully registered an AI, false if an AI with 
+	 * @return True if we successfully registered an AI, false if an AI with
 	 * 	the same label was already registered.
 	 */
 	private static boolean registerAI
 	(
-		final String label, final int dbID, 
+		final String label, final int dbID,
 		final SupportsGamePredicate supportsGame, final AIConstructor aiConstructor
 	)
 	{
 		if (registry.containsKey(label))
 			return false;
-		
+
 		registry.put(label, new AIRegistryEntry(label, dbID, supportsGame, aiConstructor));
 		return true;
 	}
-	
+
 	//-------------------------------------------------------------------------
-	
+
 	/**
 	 * @param agentName The name of the agent.
 	 * @return The AI object from its name. Null if no agent with this name is registered.
@@ -187,7 +188,7 @@ public class AIRegistry
 	{
 		if (!isRegistered(agentName))
 			return null;
-		
+
 		final JSONObject json = new JSONObject();
 		final JSONObject aiJson = new JSONObject();
 		aiJson.put("algorithm", agentName);
@@ -195,18 +196,18 @@ public class AIRegistry
 		AIRegistry.processJson(json);
 		return AIFactory.fromJson(json);
 	}
-	
+
 	/**
 	 * @param agentName
-	 * @return 
+	 * @return
 	 */
 	public static boolean isRegistered(final String agentName)
 	{
 		return registry.containsKey(agentName);
 	}
-	
+
 	//-------------------------------------------------------------------------
-	
+
 	/**
 	 * Interface for a predicate that tests whether or not an AI supports a given game.
 	 *
@@ -220,9 +221,9 @@ public class AIRegistry
 		 */
 		public boolean supportsGame(final Game game);
 	}
-	
+
 	//-------------------------------------------------------------------------
-	
+
 	/**
 	 * An entry in the AI registry
 	 *
@@ -230,7 +231,7 @@ public class AIRegistry
 	 */
 	public static class AIRegistryEntry
 	{
-		
+
 		/** Label of the entry */
 		private final String label;
 		/** Database ID of the AI (only built-in Ludii agents can have a database ID >= 0) */
@@ -241,20 +242,20 @@ public class AIRegistry
 		private final AIConstructor aiConstructor;
 		/** Used for sorting when we want sorted lists (in order of registration) */
 		protected final int rank;
-		
+
 		/**
 		 * Constructor.
-		 * 
+		 *
 		 * NOTE: intentionally protected. We want third-party users to go through the static
 		 * registerAI() method.
-		 * 
+		 *
 		 * @param label
 		 * @param dbID
 		 * @param supportsGame
 		 */
 		protected AIRegistryEntry
 		(
-			final String label, final int dbID, 
+			final String label, final int dbID,
 			final SupportsGamePredicate supportsGame, final AIConstructor aiConstructor
 		)
 		{
@@ -264,7 +265,7 @@ public class AIRegistry
 			this.aiConstructor = aiConstructor;
 			this.rank = nextRank++;
 		}
-		
+
 		/**
 		 * @return The AI's label
 		 */
@@ -272,7 +273,7 @@ public class AIRegistry
 		{
 			return label;
 		}
-		
+
 		/**
 		 * @return Functor to use to construct AIs. If this returns null, should instead
 		 * 	construct AIs just from name.
@@ -281,7 +282,7 @@ public class AIRegistry
 		{
 			return aiConstructor;
 		}
-		
+
 		/**
 		 * @return The AI's database ID (only >= 0 for Ludii built-in AIs)
 		 */
@@ -289,7 +290,7 @@ public class AIRegistry
 		{
 			return dbID;
 		}
-		
+
 		/**
 		 * @param game
 		 * @return True if and only if we support the given game
@@ -298,9 +299,9 @@ public class AIRegistry
 		{
 			return supportsGame.supportsGame(game);
 		}
-		
+
 	}
-	
+
 	//-------------------------------------------------------------------------
 
 }
